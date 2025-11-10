@@ -1,37 +1,47 @@
 document.addEventListener('DOMContentLoaded', function() {
     const searchButton = document.getElementById('search-button');
+    const searchForm = document.getElementById('search-form');
+    const searchInput = document.getElementById('search-input');
+    const resultDiv = document.getElementById('result');
     
-    searchButton.addEventListener('click', function() {
+    function performSearch() {
+        const query = searchInput.value.trim();
+        
+        // Build the URL with query parameter
+        let url = 'superheroes.php';
+        if (query) {
+            url += '?query=' + encodeURIComponent(query);
+        }
+        
+        // Make the AJAX request
         const xhr = new XMLHttpRequest();
-        xhr.open('GET', 'superheroes.php', true);
+        xhr.open('GET', url, true);
         
         xhr.onload = function() {
-            console.log('Response:', xhr.responseText); 
             if (xhr.status === 200) {
-                // Parse the HTML response
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = xhr.responseText;
-                
-                // Extract all the <li> items (each is an alias)
-                const listItems = tempDiv.querySelectorAll('li');
-                
-                // Combine all aliases into a single string
-                let aliases = '';
-                listItems.forEach(item => {
-                    aliases += item.textContent.trim() + '\n';
-                });
-                
-                // Show them in an alert
-                alert(aliases || 'No aliases found.');
+                // Display the result in the div (NO ALERT)
+                resultDiv.innerHTML = xhr.responseText;
             } else {
-                alert('Error fetching superhero data.');
+                resultDiv.innerHTML = '<p class="error-message">Error loading data.</p>';
             }
         };
         
         xhr.onerror = function() {
-            alert('Request failed.');
+            resultDiv.innerHTML = '<p class="error-message">Request failed.</p>';
         };
         
         xhr.send();
+    }
+    
+    // Handle form submission (when Enter is pressed)
+    searchForm.addEventListener('submit', function(e) {
+        e.preventDefault(); // Prevent form from actually submitting
+        performSearch();
+    });
+    
+    // Handle button click
+    searchButton.addEventListener('click', function(e) {
+        e.preventDefault(); // Prevent any default behavior
+        performSearch();
     });
 });

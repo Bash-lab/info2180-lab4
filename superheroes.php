@@ -63,10 +63,38 @@ $superheroes = [
   ], 
 ];
 
-?>
+// Get the search query and sanitize it
+$query = isset($_GET['query']) ? trim($_GET['query']) : '';
 
-<ul>
-<?php foreach ($superheroes as $superhero): ?>
-  <li><?= $superhero['alias']; ?></li>
-<?php endforeach; ?>
-</ul>
+if (empty($query)) {
+    // If no query, return all superheroes as list with proper CSS classes
+    echo '<ul class="superhero-list">';
+    foreach ($superheroes as $superhero) {
+        echo '<li class="superhero-item">' . htmlspecialchars($superhero['alias']) . '</li>';
+    }
+    echo '</ul>';
+} else {
+    // Search for matching superhero
+    $found = false;
+    $searchQuery = strtolower($query);
+    
+    foreach ($superheroes as $superhero) {
+        // Check if query matches name or alias (case insensitive)
+        if (strtolower($superhero['name']) === $searchQuery || 
+            strtolower($superhero['alias']) === $searchQuery) {
+            
+            $found = true;
+            // Display single superhero with required formatting and CSS classes
+            echo '<h3 class="superhero-alias">' . htmlspecialchars($superhero['alias']) . '</h3>';
+            echo '<h4 class="superhero-name">' . htmlspecialchars($superhero['name']) . '</h4>';
+            echo '<p class="superhero-bio">' . htmlspecialchars($superhero['biography']) . '</p>';
+            break;
+        }
+    }
+    
+    if (!$found) {
+        echo '<p class="error-message">SUPERHERO NOT FOUND</p>';
+    }
+}
+
+?>
